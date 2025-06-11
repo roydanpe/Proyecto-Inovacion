@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Jerárquico Flexible</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-section, .view-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .hierarchy {
+            margin-top: 20px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        
+        .hierarchy-item {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background: white;
+            border: 1px solid #2d3f46;
+            border-radius: 4px;
+        }
+        
+        .children {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            background: #eafaf1;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Estilo para el botón de borrar */
+        #clear-data {
+            background-color: #e74c3c;
+        }
+        
+        #clear-data:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema Jerárquico Flexible de Almacenaje</h1>
+        
+        <div class="form-section">
+            <h2>Agregar Nuevo Elemento</h2>
+            <form id="element-form">
+                <div class="form-group">
+                    <label for="element-name">Nombre del elemento:</label>
+                    <input type="text" id="element-name" required>
+                    <div id="name-error" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="element-category">Categoría del elemento (1-6):</label>
+                    <select id="element-category" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="1">1 (contiene al objeto)</option>
+                        <option value="2">2 (contiene 1 subnivel)</option>
+                        <option value="3">3 (contiene 2 subniveles)</option>
+                        <option value="4">4 (contiene 3 subniveles)</option>
+                        <option value="5">5 (contiene 4 subniveles)</option>
+                        <option value="6">6 (contiene 5 subniveles)</option>
+                    </select>
+                    <div id="category-error" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="parent-element">Pertenece a:</label>
+                    <select id="parent-element">
+                        <option value="null">Ninguno (Elemento principal)</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Agregar Elemento</button>
+                <div id="success-message" class="success-message">Elemento agregado correctamente!</div>
+            </form>
+        </div>
+        
+        <div class="view-section">
+            <h2>Visualización de Jerarquía</h2>
+            
+            <div id="hierarchy-container">
+                <ul id="hierarchy-list" class="hierarchy">
+                    <!-- Los elementos se agregarán aquí dinámicamente -->
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="save-data">Guardar Datos</button>
+                <button id="view-storage">Ver Almacén</button>
+                <button id="clear-data">Borrar Jerarquía</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Almacenamiento de los elementos
+        let elements = [];
+        
+        // Referencias a los elementos del DOM
+        const form = document.getElementById('element-form');
+        const elementNameInput = document.getElementById('element-name');
+        const elementCategorySelect = document.getElementById('element-category');
+        const parentElementSelect = document.getElementById('parent-element');
+        const hierarchyList = document.getElementById('hierarchy-list');
+        const nameError = document.getElementById('name-error');
+        const categoryError = document.getElementById('category-error');
+        const successMessage = document.getElementById('success-message');
+        const saveDataBtn = document.getElementById('save-data');
+        const viewStorageBtn = document.getElementById('view-storage');
+        const clearDataBtn = document.getElementById('clear-data');
+        
+        // Cargar datos guardados al iniciar
+        function loadData() {
+            const savedData = localStorage.getItem('hierarchyData');
+            if (savedData) {
+                elements = JSON.parse(savedData);
+                updateDropdowns();
+                renderHierarchy();
+            }
+        }
+        
+        // Guardar datos en localStorage
+        function saveData() {
+            localStorage.setItem('hierarchyData', JSON.stringify(elements));
+            successMessage.textContent = 'Datos guardados correctamente!';
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Borrar todos los datos
+        function clearData() {
+            if (confirm('¿Estás seguro de que quieres borrar toda la jerarquía? Esta acción no se puede deshacer.')) {
+                elements = [];
+                localStorage.removeItem('hierarchyData');
+                updateDropdowns();
+                renderHierarchy();
+                successMessage.textContent = 'Jerarquía borrada correctamente!';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Función para actualizar los dropdowns
+        function updateDropdowns() {
+            // Limpiar opciones actuales excepto la primera
+            while (parentElementSelect.options.length > 1) {
+                parentElementSelect.remove(1);
+            }
+            
+            // Agregar elementos existentes como posibles padres
+            elements.forEach(element => {
+                const parentOption = document.createElement('option');
+                parentOption.value = element.id;
+                parentOption.textContent = element.name;
+                parentElementSelect.appendChild(parentOption);
+            });
+        }
+        
+        // Función para renderizar la jerarquía
+        function renderHierarchy(parentId = null, parentElement = hierarchyList) {
+            // Filtrar elementos con parentId igual al parámetro
+            const children = elements.filter(element => {
+                if (parentId === null) return element.parentId === null;
+                return element.parentId === parentId;
+            });
+            
+            // Si no hay hijos en el nivel raíz, mostrar mensaje
+            if (children.length === 0 && parentElement === hierarchyList) {
+                hierarchyList.innerHTML = '<li>No hay elementos para mostrar</li>';
+                return;
+            } 
+            // Si no hay hijos en niveles inferiores, no hacer nada
+            else if (children.length === 0) {
+                return;
+            }
+            
+            // Crear lista para los hijos si no existe
+            let childrenList = parentElement === hierarchyList ? hierarchyList : parentElement.querySelector('ul');
+            
+            if (!childrenList && parentElement !== hierarchyList) {
+                childrenList = document.createElement('ul');
+                childrenList.className = 'children';
+                parentElement.appendChild(childrenList);
+            }
+            
+            // Limpiar la lista si es el nivel principal
+            if (parentId === null) {
+                hierarchyList.innerHTML = '';
+            }
+            
+            // Agregar cada hijo
+            children.forEach(child => {
+                let listItem;
+                
+                // Solo crear nuevos elementos si no existen
+                if (parentElement === hierarchyList) {
+                    listItem = document.createElement('li');
+                    listItem.className = 'hierarchy-item';
+                    listItem.textContent = child.name;
+                    hierarchyList.appendChild(listItem);
+                } else {
+                    listItem = document.createElement('li');
+                    listItem.className = 'hierarchy-item';
+                    listItem.textContent = child.name;
+                    childrenList.appendChild(listItem);
+                }
+                
+                // Renderizar hijos recursivamente
+                renderHierarchy(child.id, listItem);
+            });
+        }
+        
+        // Función para validar el formulario
+        function validateForm() {
+            let isValid = true;
+            
+            // Validar nombre
+            if (!elementNameInput.value.trim()) {
+                nameError.textContent = 'El nombre del elemento es requerido';
+                isValid = false;
+            } else {
+                nameError.textContent = '';
+            }
+            
+            // Validar categoría
+            if (!elementCategorySelect.value) {
+                categoryError.textContent = 'Debe seleccionar una categoría';
+                isValid = false;
+            } else {
+                categoryError.textContent = '';
+            }
+            
+            return isValid;
+        }
+        
+        // Manejar el envío del formulario
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) return;
+            
+            // Crear nuevo elemento
+            const newElement = {
+                id: Date.now().toString(), // ID único basado en timestamp
+                name: elementNameInput.value.trim(),
+                category: elementCategorySelect.value,
+                parentId: parentElementSelect.value === 'null' ? null : parentElementSelect.value
+            };
+            
+            // Validar relaciones coherentes
+            if (newElement.parentId) {
+                const parent = elements.find(el => el.id === newElement.parentId);
+                if (parent && parseInt(newElement.category) >= parseInt(parent.category)) {
+                    alert('Un elemento no puede pertenecer a otro de categoría igual o menor');
+                    return;
+                }
+            }
+            
+            // Agregar el elemento al array
+            elements.push(newElement);
+            
+            // Actualizar la interfaz
+            updateDropdowns();
+            renderHierarchy();
+            
+            // Mostrar mensaje de éxito
+            successMessage.textContent = 'Elemento agregado correctamente!';
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            // Limpiar el formulario
+            elementNameInput.value = '';
+            elementNameInput.focus();
+        });
+        
+        // Evento para guardar datos
+        saveDataBtn.addEventListener('click', saveData);
+        
+        // Evento para ver el almacén
+       // Evento para ver el almacén
+        viewStorageBtn.addEventListener('click', function() {
+            saveData(); // Guardar antes de navegar
+            window.location.href = 'AlmacenEmpresa.html';
+        });
+        
+        // Evento para borrar todos los datos
+        clearDataBtn.addEventListener('click', clearData);
+        
+        // Inicializar
+        loadData();
+        updateDropdowns();
+        renderHierarchy();
+    </script>
+</body>
+</html>

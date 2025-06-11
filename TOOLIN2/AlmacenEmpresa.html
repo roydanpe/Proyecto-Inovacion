@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacén de la Empresa</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .hierarchy {
+            margin-top: 20px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        
+        .hierarchy-item {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background: white;
+            border: 1px solid #2d3f46;
+            border-radius: 4px;
+        }
+        
+        .children {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .category-1 {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .category-1:hover {
+            background-color: #2980b9;
+        }
+        
+        .empty-message {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            background-color: #1a252f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Almacén de la Empresa</h1>
+        
+        <div id="hierarchy-container">
+            <ul id="hierarchy-list" class="hierarchy">
+                <!-- Los elementos se agregarán aquí dinámicamente -->
+            </ul>
+        </div>
+        
+        <a href="CrearAlmacen.html" class="back-button">Volver al Editor</a>
+    </div>
+
+    <script>
+        // Función para renderizar la jerarquía
+        function renderHierarchy(elements, parentId, parentElement) {
+            // Filtrar elementos con parentId igual al parámetro
+            const children = elements.filter(element => {
+                if (parentId === null) return element.parentId === null;
+                return element.parentId === parentId;
+            });
+            
+            // Si no hay hijos en el nivel raíz, mostrar mensaje
+            if (children.length === 0 && parentElement.id === 'hierarchy-list') {
+                parentElement.innerHTML = '<li class="empty-message">No hay elementos para mostrar</li>';
+                return;
+            } 
+            
+            // Crear lista para los hijos si no existe
+            let childrenList = parentElement.querySelector('ul');
+            if (!childrenList && children.length > 0) {
+                childrenList = document.createElement('ul');
+                childrenList.className = 'children';
+                parentElement.appendChild(childrenList);
+            }
+            
+            // Limpiar la lista si es el nivel principal
+            if (parentId === null) {
+                parentElement.innerHTML = '';
+                if (children.length === 0) {
+                    parentElement.innerHTML = '<li class="empty-message">No hay elementos para mostrar</li>';
+                    return;
+                }
+                childrenList = document.createElement('ul');
+                childrenList.className = 'hierarchy';
+                parentElement.appendChild(childrenList);
+            }
+            
+            // Agregar cada hijo
+            children.forEach(child => {
+                const listItem = document.createElement('li');
+                
+                // Si es categoría 1, hacerlo botón
+                if (child.category === '1') {
+                    listItem.className = 'hierarchy-item category-1';
+                    listItem.textContent = child.name;
+                    listItem.addEventListener('click', function() {
+                        alert(`Has seleccionado: ${child.name}`);
+                    });
+                } else {
+                    listItem.className = 'hierarchy-item';
+                    listItem.textContent = child.name;
+                }
+                
+                childrenList.appendChild(listItem);
+                
+                // Renderizar hijos recursivamente
+                renderHierarchy(elements, child.id, listItem);
+            });
+        }
+        
+        // Cargar y mostrar los datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedData = localStorage.getItem('hierarchyData');
+            const elements = savedData ? JSON.parse(savedData) : [];
+            const hierarchyList = document.getElementById('hierarchy-list');
+            
+            renderHierarchy(elements, null, hierarchyList);
+            
+            // Escuchar cambios en los datos
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'hierarchyData') {
+                    const updatedElements = JSON.parse(event.newValue);
+                    renderHierarchy(updatedElements, null, hierarchyList);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
