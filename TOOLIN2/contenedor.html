@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contenedor</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --dark-color: #2c3e50;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --light-gray: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .container-info {
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .item-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px dashed var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #219955;
+        }
+        
+        .items-list {
+            margin-top: 30px;
+        }
+        
+        .item-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .item-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin: 0;
+        }
+        
+        .item-quantity {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .item-description {
+            margin: 10px 0;
+            color: #555;
+        }
+        
+        .item-date {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .empty-message {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 30px;
+            border: 1px dashed #ddd;
+            border-radius: 5px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--dark-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #1a252f;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        #item-search {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: var(--dark-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="container-title">
+            <span>Contenedor</span>
+            <span class="category-badge">Categoría 1</span>
+        </h1>
+        
+        <div class="container-info">
+            <p>Aquí puedes gestionar todos los ítems almacenados en este contenedor. Agrega nuevos ítems, edita o elimina los existentes.</p>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="item-search" placeholder="Buscar ítems...">
+        </div>
+        
+        <div class="item-form">
+            <h2>Agregar Nuevo Ítem</h2>
+            <form id="item-form">
+                <div class="form-group">
+                    <label for="item-name">Nombre del ítem:</label>
+                    <input type="text" id="item-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-quantity">Cantidad:</label>
+                    <input type="number" id="item-quantity" required min="1" value="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-category">Categoría:</label>
+                    <select id="item-category">
+                        <option value="general">General</option>
+                        <option value="electronica">Electrónica</option>
+                        <option value="herramientas">Herramientas</option>
+                        <option value="oficina">Oficina</option>
+                        <option value="alimentos">Alimentos</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-description">Descripción:</label>
+                    <textarea id="item-description" placeholder="Detalles adicionales sobre el ítem..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-success">Agregar Ítem</button>
+            </form>
+        </div>
+        
+        <div class="items-list">
+            <h2>Ítems en este contenedor</h2>
+            <div id="items-container">
+                <!-- Los ítems se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+        
+        <a href="AlmacenEmpresa.html" class="back-button">← Volver al Almacén</a>
+    </div>
+
+    <script>
+        // Obtener información del contenedor actual
+        const currentContainer = JSON.parse(localStorage.getItem('currentContainer'));
+        const containerTitle = document.getElementById('container-title');
+        const itemsContainer = document.getElementById('items-container');
+        const itemForm = document.getElementById('item-form');
+        const itemSearch = document.getElementById('item-search');
+        
+        // Mostrar información del contenedor
+        if (currentContainer) {
+            containerTitle.querySelector('span:first-child').textContent = currentContainer.name;
+            
+            // Cargar ítems existentes para este contenedor
+            let containerItems = JSON.parse(localStorage.getItem(`container_${currentContainer.id}_items`)) || [];
+            
+            // Función para renderizar ítems
+            function renderItems(itemsToRender = containerItems) {
+                itemsContainer.innerHTML = '';
+                
+                if (itemsToRender.length === 0) {
+                    itemsContainer.innerHTML = `
+                        <div class="empty-message">
+                            No hay ítems en este contenedor. Agrega tu primer ítem usando el formulario arriba.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                itemsToRender.forEach((item, index) => {
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'item-card';
+                    itemCard.innerHTML = `
+                        <div class="item-header">
+                            <h3 class="item-name">${item.name}</h3>
+                            <span class="item-quantity">${item.quantity} unidad(es)</span>
+                        </div>
+                        
+                        <div class="item-meta">
+                            <span class="item-category">Categoría: ${item.category || 'General'}</span>
+                        </div>
+                        
+                        ${item.description ? `<p class="item-description">${item.description}</p>` : ''}
+                        
+                        <p class="item-date">Agregado el: ${item.date}</p>
+                        
+                        <div class="item-actions">
+                            <button onclick="editItem(${index})">Editar</button>
+                            <button class="btn-danger" onclick="deleteItem(${index})">Eliminar</button>
+                        </div>
+                    `;
+                    itemsContainer.appendChild(itemCard);
+                });
+            }
+            
+            // Función para guardar ítems
+            function saveItems() {
+                localStorage.setItem(`container_${currentContainer.id}_items`, JSON.stringify(containerItems));
+            }
+            
+            // Función para agregar ítem
+            itemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newItem = {
+                    name: document.getElementById('item-name').value.trim(),
+                    quantity: document.getElementById('item-quantity').value,
+                    category: document.getElementById('item-category').value,
+                    description: document.getElementById('item-description').value.trim(),
+                    date: new Date().toLocaleString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                };
+                
+                containerItems.unshift(newItem); // Agregar al inicio
+                saveItems();
+                renderItems();
+                itemForm.reset();
+            });
+            
+            // Función para editar ítem
+            window.editItem = function(index) {
+                const item = containerItems[index];
+                if (!item) return;
+                
+                document.getElementById('item-name').value = item.name;
+                document.getElementById('item-quantity').value = item.quantity;
+                document.getElementById('item-category').value = item.category || 'general';
+                document.getElementById('item-description').value = item.description || '';
+                
+                // Eliminar el ítem antiguo
+                containerItems.splice(index, 1);
+                saveItems();
+                renderItems();
+                
+                // Hacer scroll al formulario
+                document.getElementById('item-form').scrollIntoView({ behavior: 'smooth' });
+            };
+            
+            // Función para eliminar ítem
+            window.deleteItem = function(index) {
+                if (confirm('¿Estás seguro de que quieres eliminar este ítem?')) {
+                    containerItems.splice(index, 1);
+                    saveItems();
+                    renderItems();
+                }
+            };
+            
+            // Función para buscar ítems
+            itemSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (!searchTerm) {
+                    renderItems();
+                    return;
+                }
+                
+                const filteredItems = containerItems.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+                    item.category.toLowerCase().includes(searchTerm)
+                );
+                
+                renderItems(filteredItems);
+            });
+            
+            // Renderizar ítems al cargar
+            renderItems();
+        } else {
+            containerTitle.textContent = 'Contenedor no encontrado';
+            itemsContainer.innerHTML = `
+                <div class="empty-message">
+                    No se encontró el contenedor. Serás redirigido al almacén principal.
+                </div>
+            `;
+            
+            setTimeout(() => {
+                window.location.href = 'AlmacenEmpresa.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
