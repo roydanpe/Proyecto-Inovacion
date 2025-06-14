@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacén de la Empresa</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --dark-color: #2c3e50;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #1abc9c;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .hierarchy {
+            margin-top: 20px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        
+        .hierarchy-item {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background: white;
+            border: 1px solid #2d3f46;
+            border-radius: 4px;
+        }
+        
+        .children {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .category-1 {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-1:hover {
+            background-color: #2980b9;
+            transform: translateX(5px);
+        }
+        
+        .category-1::after {
+            content: "→";
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .item-count {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        
+        .empty-message {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            width: fit-content;
+        }
+        
+        .back-button:hover {
+            background-color: #1a252f;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* Estilos para la sección de todos los ítems */
+        .all-items-section {
+            margin-top: 40px;
+            border-top: 2px solid var(--primary-color);
+            padding-top: 20px;
+        }
+
+        .all-items-list {
+            margin-top: 15px;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            color: var(--dark-color);
+            font-size: 1.1em;
+        }
+
+        .item-code {
+            font-family: monospace;
+            color: var(--primary-color);
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .item-container {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .item-quantity {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .item-description {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .meta-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .item-category {
+            background-color: var(--dark-color);
+            color: white;
+        }
+
+        .condition-perfect {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .condition-functional {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .condition-defective {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .condition-repair {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .condition-lost {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .condition-discarded {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .availability-free {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .availability-in-use {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .reservation-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .reservation-item {
+            font-size: 0.85em;
+            margin-top: 5px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        .reservation-day {
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .reservation-time {
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Almacén de la Empresa</h1>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar contenedores o elementos...">
+        </div>
+        
+        <div id="hierarchy-container">
+            <ul id="hierarchy-list" class="hierarchy">
+                <!-- Los elementos se agregarán aquí dinámicamente -->
+            </ul>
+        </div>
+
+        <!-- Sección para mostrar todos los ítems -->
+        <div class="all-items-section">
+            <h2>Todos los Ítems del Almacén</h2>
+            <div id="all-items-container" class="all-items-list">
+                <!-- Los ítems se cargarán aquí -->
+            </div>
+        </div>
+        
+        <a href="CrearAlmacen.html" class="back-button">Volver al Editor</a>
+    </div>
+
+    <script>
+        // Función para contar ítems en un contenedor
+        function countItems(containerId) {
+            const items = JSON.parse(localStorage.getItem(`container_${containerId}_items`)) || [];
+            return items.length;
+        }
+        
+        // Función para obtener texto de condición
+        function getConditionText(condition) {
+            const conditions = {
+                'perfect': 'Perfecto',
+                'functional': 'Funcional',
+                'defective': 'Defectuosa',
+                'repair': 'En reparación',
+                'lost': 'Extraviada',
+                'discarded': 'Dada de baja'
+            };
+            return conditions[condition] || condition;
+        }
+        
+        // Función para obtener texto de disponibilidad
+        function getAvailabilityText(availability) {
+            return availability === 'in-use' ? 'En uso' : 'Libre';
+        }
+        
+        // Función para obtener texto del día
+        function getDayText(day) {
+            const days = {
+                'monday': 'Lunes',
+                'tuesday': 'Martes',
+                'wednesday': 'Miércoles',
+                'thursday': 'Jueves',
+                'friday': 'Viernes',
+                'saturday': 'Sábado',
+                'sunday': 'Domingo'
+            };
+            return days[day] || day;
+        }
+        
+        // Función para obtener todos los contenedores
+        function getAllContainers() {
+            const savedData = localStorage.getItem('hierarchyData');
+            return savedData ? JSON.parse(savedData) : [];
+        }
+        
+        // Función para obtener todos los ítems de todos los contenedores
+        function getAllItems() {
+            const containers = getAllContainers();
+            const allItems = [];
+            
+            containers.forEach(container => {
+                if (container.category === '1') { // Solo contenedores
+                    const items = JSON.parse(localStorage.getItem(`container_${container.id}_items`)) || [];
+                    items.forEach(item => {
+                        allItems.push({
+                            ...item,
+                            containerId: container.id,
+                            containerName: container.name
+                        });
+                    });
+                }
+            });
+            
+            return allItems;
+        }
+        
+        // Función para renderizar todos los ítems
+        function renderAllItems(itemsToRender = null) {
+            const allItems = itemsToRender || getAllItems();
+            const container = document.getElementById('all-items-container');
+            
+            if (allItems.length === 0) {
+                container.innerHTML = '<div class="empty-message">No hay ítems en el almacén</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            allItems.forEach(item => {
+                // Determinar clase CSS para la condición
+                let conditionClass = '';
+                switch(item.condition) {
+                    case 'perfect': conditionClass = 'condition-perfect'; break;
+                    case 'functional': conditionClass = 'condition-functional'; break;
+                    case 'defective': conditionClass = 'condition-defective'; break;
+                    case 'repair': conditionClass = 'condition-repair'; break;
+                    case 'lost': conditionClass = 'condition-lost'; break;
+                    case 'discarded': conditionClass = 'condition-discarded'; break;
+                }
+                
+                // Determinar clase CSS para disponibilidad
+                let availabilityClass = item.availability === 'in-use' ? 'availability-in-use' : 'availability-free';
+                
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                itemCard.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-quantity">${item.quantity} unidad(es)</span>
+                    </div>
+                    <div class="item-code">Código: ${item.code || 'N/A'}</div>
+                    <div class="item-container">Contenedor: ${item.containerName}</div>
+                    
+                    <div class="item-meta">
+                        <span class="meta-badge item-category">${item.category || 'General'} (${item.categoryCode || '00'})</span>
+                        <span class="meta-badge ${conditionClass}">${getConditionText(item.condition)}</span>
+                        <span class="meta-badge ${availabilityClass}">${getAvailabilityText(item.availability)}</span>
+                    </div>
+                    
+                    ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+                    
+                    ${item.usageTime ? `
+                        <div class="reservation-section">
+                            <strong>Tiempo de uso:</strong>
+                            <div>De ${item.usageTime.startHour}:${item.usageTime.startMinute} a ${item.usageTime.endHour}:${item.usageTime.endMinute}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${item.reservations && item.reservations.length > 0 ? `
+                        <div class="reservation-section">
+                            <strong>Reservas:</strong>
+                            ${item.reservations.map(reservation => `
+                                <div class="reservation-item">
+                                    <span class="reservation-day">${getDayText(reservation.day)}</span>
+                                    <span class="reservation-time">De ${reservation.startHour}:${reservation.startMinute} a ${reservation.endHour}:${reservation.endMinute}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+                container.appendChild(itemCard);
+            });
+        }
+        
+        // Función para filtrar elementos
+        function filterElements(elements, searchTerm) {
+            if (!searchTerm) return elements;
+            
+            return elements.filter(element => {
+                const matchesName = element.name.toLowerCase().includes(searchTerm.toLowerCase());
+                let matchesChildren = false;
+                
+                // Si es un contenedor, buscar en sus ítems
+                if (element.category === '1') {
+                    const items = JSON.parse(localStorage.getItem(`container_${element.id}_items`)) || [];
+                    matchesChildren = items.some(item => 
+                        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (item.code && item.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        getConditionText(item.condition).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        getAvailabilityText(item.availability).toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+                
+                return matchesName || matchesChildren;
+            });
+        }
+        
+        // Función para renderizar la jerarquía
+        function renderHierarchy(elements, parentId = null, parentElement = null, searchTerm = '') {
+            const hierarchyList = parentElement || document.getElementById('hierarchy-list');
+            
+            // Filtrar elementos con parentId igual al parámetro
+            let children = elements.filter(element => {
+                if (parentId === null) return element.parentId === null;
+                return element.parentId === parentId;
+            });
+            
+            // Aplicar filtro de búsqueda si estamos en el nivel raíz
+            if (parentId === null && searchTerm) {
+                children = filterElements(children, searchTerm);
+            }
+            
+            // Si no hay hijos en el nivel raíz, mostrar mensaje
+            if (children.length === 0 && parentId === null) {
+                hierarchyList.innerHTML = '<li class="empty-message">No hay elementos para mostrar</li>';
+                return;
+            } 
+            // Si no hay hijos en niveles inferiores, no hacer nada
+            else if (children.length === 0) {
+                return;
+            }
+            
+            // Limpiar la lista si es el nivel principal
+            if (parentId === null) {
+                hierarchyList.innerHTML = '';
+            }
+            
+            // Crear lista para los hijos si no existe
+            let childrenList = parentElement ? parentElement.querySelector('ul') : hierarchyList;
+            
+            if (!childrenList && parentElement) {
+                childrenList = document.createElement('ul');
+                childrenList.className = 'children';
+                parentElement.appendChild(childrenList);
+            }
+            
+            // Agregar cada hijo
+            children.forEach(child => {
+                const listItem = document.createElement('li');
+                listItem.className = `hierarchy-item ${child.category === '1' ? 'category-1' : ''}`;
+                
+                if (child.category === '1') {
+                    // Elemento contenedor (clickable)
+                    const itemCount = countItems(child.id);
+                    listItem.innerHTML = `
+                        ${child.name}
+                        ${itemCount > 0 ? `<span class="item-count">${itemCount}</span>` : ''}
+                    `;
+                    
+                    listItem.addEventListener('click', function() {
+                        // Guardar el contenedor actual en localStorage
+                        localStorage.setItem('currentContainer', JSON.stringify({
+                            id: child.id,
+                            name: child.name
+                        }));
+                        // Redirigir a la página del contenedor
+                        window.location.href = `contenedor.html?name=${encodeURIComponent(child.name)}&id=${child.id}`;
+                    });
+                } else {
+                    // Elemento normal
+                    listItem.textContent = child.name;
+                }
+                
+                childrenList.appendChild(listItem);
+                
+                // Renderizar hijos recursivamente
+                renderHierarchy(elements, child.id, listItem, searchTerm);
+            });
+        }
+        
+        // Cargar y mostrar los datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedData = localStorage.getItem('hierarchyData');
+            const elements = savedData ? JSON.parse(savedData) : [];
+            const searchInput = document.getElementById('search-input');
+            
+            // Renderizar jerarquía inicial
+            renderHierarchy(elements);
+            
+            // Renderizar todos los ítems
+            renderAllItems();
+            
+            // Manejar búsqueda
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                // Filtrar jerarquía
+                renderHierarchy(elements, null, null, searchTerm);
+                
+                // Filtrar lista de ítems
+                if (searchTerm) {
+                    const allItems = getAllItems();
+                    const filteredItems = allItems.filter(item => 
+                        item.name.toLowerCase().includes(searchTerm) ||
+                        (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+                        (item.code && item.code.toLowerCase().includes(searchTerm)) ||
+                        item.containerName.toLowerCase().includes(searchTerm) ||
+                        item.category.toLowerCase().includes(searchTerm) ||
+                        getConditionText(item.condition).toLowerCase().includes(searchTerm) ||
+                        getAvailabilityText(item.availability).toLowerCase().includes(searchTerm)
+                    );
+                    renderAllItems(filteredItems);
+                } else {
+                    renderAllItems();
+                }
+            });
+            
+            // Escuchar cambios en los datos
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'hierarchyData') {
+                    const updatedElements = JSON.parse(event.newValue);
+                    renderHierarchy(updatedElements);
+                    renderAllItems();
+                }
+                
+                // Actualizar cuando cambian los ítems de algún contenedor
+                if (event.key && event.key.startsWith('container_') && event.key.endsWith('_items')) {
+                    renderAllItems();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
